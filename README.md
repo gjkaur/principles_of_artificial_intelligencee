@@ -1,6 +1,6 @@
-# Principles of Artificial Intelligence: Notes for Chapters 1 to 6
+# Principles of Artificial Intelligence: Notes for Chapters 1 to 7
 
-These notes summarize Chapters 1 to 6 in sequence. They are written for beginners and include simple examples to make the main ideas easier to understand.
+These notes summarize Chapters 1 to 7 in sequence. They are written for beginners and include simple examples to make the main ideas easier to understand.
 
 ## Chapter 1: Introduction to Artificial Intelligence
 
@@ -896,6 +896,463 @@ Example:
 
 MCMC can be used in statistics, machine learning, and probabilistic AI to sample from complex distributions.
 
+## Chapter 7: Adversarial Search and Games
+
+Chapter 7 explains how AI systems make decisions in competitive situations. In these problems, another player or agent is trying to make choices that may block or reduce our success.
+
+This kind of search is called **adversarial search**.
+
+Examples:
+
+- chess
+- checkers
+- tic-tac-toe
+- Go
+- poker
+- backgammon
+- negotiation or auction systems
+
+### Why Games Are Important in AI
+
+Games are useful in AI because they are formal and measurable.
+
+Most games have:
+
+- clear rules
+- legal moves
+- winning and losing conditions
+- measurable outcomes
+- competitive decision-making
+
+Example:
+
+Chess is useful for AI study because the board is visible, the legal moves are clearly defined, and the result is win, lose, or draw.
+
+Games are also good models for real-world competition.
+
+Example:
+
+Business negotiations, military planning, and auctions all involve decision-making where another person or group may respond strategically.
+
+### Types of Game Environments
+
+Games can be classified using ideas from agent environments.
+
+**Perfect information games** are fully observable. Every player can see the complete state.
+
+Examples:
+
+- chess
+- checkers
+- Go
+
+**Imperfect information games** are partially observable. Players cannot see everything.
+
+Examples:
+
+- poker
+- bridge
+- Battleships
+
+**Deterministic games** have no randomness.
+
+Example:
+
+Chess is deterministic because the next board position depends only on the move chosen.
+
+**Stochastic games** include randomness.
+
+Example:
+
+Backgammon is stochastic because dice rolls affect possible moves.
+
+### Two-Player Zero-Sum Games
+
+A **two-player zero-sum game** has two players whose interests are directly opposed.
+
+If one player gains, the other player loses.
+
+Example:
+
+In chess, if White wins, Black loses. The utilities can be represented as:
+
+```text
+White win:  +1 for White, -1 for Black
+Draw:        0 for both
+White loss: -1 for White, +1 for Black
+```
+
+The sum of the players' utilities is constant.
+
+### Games vs. Single-Agent Search
+
+In single-agent search, the solution is often a fixed path.
+
+Example:
+
+In a maze, the solution may be:
+
+```text
+up -> right -> right -> down -> goal
+```
+
+In a game, this does not work because the opponent may choose different responses.
+
+Instead, the solution is a **strategy** or **policy**.
+
+A strategy tells the player what move to make in every possible situation.
+
+Example:
+
+In tic-tac-toe, a strategy may say:
+
+- If the center is empty, take the center.
+- If the opponent has two in a row, block.
+- If you can win immediately, take the winning move.
+
+### Game Tree
+
+A **game tree** shows possible moves and responses.
+
+The root is the current game state.
+
+Branches are legal moves.
+
+Levels alternate between players.
+
+Leaves are terminal states where the game is over.
+
+Example:
+
+In tic-tac-toe:
+
+- MAX may be X.
+- MIN may be O.
+- Terminal values may be +1 for X win, 0 for draw, and -1 for X loss.
+
+### MAX and MIN
+
+In game search, we often call the players **MAX** and **MIN**.
+
+MAX tries to maximize the utility.
+
+MIN tries to minimize MAX's utility.
+
+Example:
+
+If terminal values are:
+
+```text
+3, 12, 8
+```
+
+and it is MIN's turn, MIN chooses 3 because that is worst for MAX.
+
+If it is MAX's turn, MAX chooses the largest available value.
+
+### Minimax
+
+**Minimax** is the main algorithm for optimal play in deterministic two-player zero-sum games.
+
+The idea is:
+
+- MAX chooses the move with the highest value.
+- MIN chooses the move with the lowest value.
+- Values are backed up from terminal states to the root.
+
+Recursive definition:
+
+```text
+Minimax(state) =
+    Utility(state) if state is terminal
+    max Minimax(successors(state)) if player is MAX
+    min Minimax(successors(state)) if player is MIN
+```
+
+Example:
+
+Suppose MAX has three possible moves. After MIN responds perfectly, the values are:
+
+```text
+Move A = 3
+Move B = 2
+Move C = 2
+```
+
+MAX chooses Move A because it guarantees the best worst-case value, 3.
+
+### Why Minimax Is Conservative
+
+Minimax assumes the opponent plays optimally.
+
+This makes it conservative. It protects against the strongest possible opponent.
+
+Example:
+
+If a weaker opponent makes a mistake, MAX may get a better outcome than minimax predicted. But minimax does not depend on the opponent making mistakes.
+
+### More General Games
+
+Not all games are two-player zero-sum games.
+
+Some games have:
+
+- more than two players
+- cooperation
+- mixed interests
+- non-zero-sum utilities
+
+In these games, utilities may be represented as tuples.
+
+Example:
+
+```text
+(4, 3, 2)
+```
+
+This means:
+
+- player 1 gets utility 4
+- player 2 gets utility 3
+- player 3 gets utility 2
+
+Each player chooses actions that maximize their own utility.
+
+### Alpha-Beta Pruning
+
+**Alpha-beta pruning** improves minimax by avoiding branches that cannot affect the final decision.
+
+It gives the same answer as minimax, but often searches fewer nodes.
+
+The key idea:
+
+If we already know a branch is worse than a choice we have already found, we do not need to finish searching that branch.
+
+Example:
+
+Suppose MAX already has a move that guarantees value 3.
+
+Now the algorithm examines another move. At a MIN node, it finds one child with value 2.
+
+Since MIN can force value 2, this branch can never be better than MAX's existing value 3. So the remaining children of that MIN node can be skipped.
+
+### Alpha and Beta
+
+**Alpha** is the best value found so far for MAX.
+
+**Beta** is the best value found so far for MIN.
+
+Pruning happens when the current branch can no longer improve the result.
+
+Simple intuition:
+
+- Alpha says, "MAX already has this good an option."
+- Beta says, "MIN already has this good an option."
+- If a branch cannot beat those bounds, stop searching it.
+
+### Move Ordering
+
+Alpha-beta pruning works best when good moves are considered first.
+
+Example:
+
+In chess, a program may try:
+
+1. captures
+2. checks or threats
+3. strong positional moves
+4. weaker moves
+
+Good move ordering can greatly reduce the number of nodes searched.
+
+With perfect ordering, alpha-beta can reduce search time from about:
+
+```text
+O(b^m)
+```
+
+to about:
+
+```text
+O(b^(m/2))
+```
+
+This means the program can effectively search about twice as deep.
+
+### Evaluation Functions
+
+In large games, searching to terminal states is impossible.
+
+Example:
+
+Chess has too many possible games to search all the way to checkmate from the opening position.
+
+So the program cuts off the search at a certain depth and uses an **evaluation function** to estimate the value of the position.
+
+General form:
+
+```text
+Eval(s) = w1 f1(s) + w2 f2(s) + ... + wn fn(s)
+```
+
+For chess:
+
+- `f1(s)` may count material advantage
+- `f2(s)` may measure king safety
+- `f3(s)` may measure control of the center
+- `f4(s)` may measure pawn structure
+
+Example:
+
+Material values may be:
+
+```text
+pawn = 1
+knight = 3
+bishop = 3
+rook = 5
+queen = 9
+```
+
+If a player is up one queen and down one rook, the material advantage is:
+
+```text
+9 - 5 = 4
+```
+
+### Horizon Effect
+
+The **horizon effect** happens when a program cuts off search too early and misses something important just beyond the depth limit.
+
+Example:
+
+A chess program may delay losing its queen for two moves. If the search only looks one move ahead, it may think the queen is safe. In reality, the queen is lost just beyond the search horizon.
+
+### Quiescence Search
+
+**Quiescence search** helps reduce the horizon effect.
+
+Instead of stopping at a fixed depth in unstable positions, the program continues searching until the position becomes quieter.
+
+Example:
+
+If a queen is under attack, the program should not stop immediately. It should continue searching captures, checks, or forced moves until the position is more stable.
+
+### Additional Game-Search Techniques
+
+**Transposition table**
+
+Stores game states already evaluated.
+
+Example:
+
+In chess, the same board position may be reached by different move orders. A transposition table avoids evaluating it again.
+
+**Forward pruning**
+
+Ignores moves that seem unlikely to be good.
+
+Example:
+
+A chess program may ignore obviously bad moves to save time.
+
+**Lookup tables**
+
+Store known opening or endgame positions.
+
+Example:
+
+A chess program can use an opening book for the first several moves instead of searching from scratch.
+
+### Games of Chance
+
+Some games include randomness.
+
+Example:
+
+Backgammon includes dice rolls.
+
+To represent this, the game tree includes **chance nodes**.
+
+At a chance node, each outcome has a probability.
+
+Example:
+
+With two dice:
+
+- rolling `(1, 1)` has probability `1/36`
+- rolling a total combination like `(1, 2)` or `(2, 1)` has probability `2/36`, which is `1/18`
+
+### Expectiminimax
+
+**Expectiminimax** extends minimax to games with chance.
+
+At MAX nodes, choose the maximum value.
+
+At MIN nodes, choose the minimum value.
+
+At chance nodes, compute the expected value.
+
+Example:
+
+Suppose a chance node has two outcomes:
+
+```text
+Outcome A: probability 0.5, value 10
+Outcome B: probability 0.5, value 2
+```
+
+Expected value:
+
+```text
+(0.5 * 10) + (0.5 * 2) = 5 + 1 = 6
+```
+
+So the chance node has value 6.
+
+### Monte Carlo Simulation
+
+**Monte Carlo simulation** estimates values by running many random simulations.
+
+Example:
+
+In backgammon, instead of calculating every possible future dice sequence, the program can simulate thousands of random games and estimate which move wins most often.
+
+If Move A wins 620 out of 1000 simulations, its estimated win rate is:
+
+```text
+620 / 1000 = 62%
+```
+
+### Partially Observable Games
+
+In partially observable games, players cannot see the full state.
+
+Examples:
+
+- poker
+- bridge
+- Battleships
+
+In poker, you know your own cards but not the opponent's cards.
+
+One method is to randomly generate possible hidden states and analyze them.
+
+This can help, but it does not fully handle bluffing, deception, or information gathering.
+
+### Game-Playing Algorithms Today
+
+Game AI has achieved major successes.
+
+Examples:
+
+- Checkers was solved in 2007.
+- IBM Deep Blue defeated Garry Kasparov in chess in 1997.
+- Backgammon systems used reinforcement learning to learn strong evaluation functions.
+- Modern Go systems made major progress using deep learning and Monte Carlo tree search.
+
+The main lesson is that strong game AI usually combines search, evaluation functions, pruning, learning, and large amounts of computation.
+
 ## Detailed Study Notes and Worked Examples
 
 This section adds more depth to the chapter notes above. Use it after reading the chapter summaries when you want to understand how the ideas connect and how they may appear in examples or exam questions.
@@ -1505,7 +1962,242 @@ Example:
 
 In TSP, temporarily making the route longer may allow the algorithm to remove a bad crossing later and produce a much shorter tour.
 
-## Quick Comparison of Chapters 1 to 6
+## Detailed Chapter 7 Notes: Adversarial Search and Games
+
+Adversarial search is about decision-making when another player is trying to stop you from getting your best outcome.
+
+In ordinary search, the environment does not intentionally oppose the agent. In adversarial search, the opponent chooses actions too, so the agent must think ahead.
+
+Example:
+
+In chess, moving a queen to attack a piece may look good, but the opponent may respond by trapping the queen. A good AI must consider the opponent's likely response.
+
+### Strategy Instead of Fixed Plan
+
+In games, a fixed plan is usually not enough.
+
+Example:
+
+In a maze, a fixed plan might be:
+
+```text
+right -> right -> up -> goal
+```
+
+In chess, you cannot plan:
+
+```text
+move knight -> move queen -> checkmate
+```
+
+without considering the opponent's replies.
+
+A strategy is better because it says what to do in different possible states.
+
+### Minimax Worked Example
+
+Suppose MAX has three possible moves: A1, A2, and A3.
+
+After each move, MIN gets to choose among outcomes:
+
+```text
+A1 outcomes: 3, 12, 8
+A2 outcomes: 2, 4, 6
+A3 outcomes: 14, 5, 2
+```
+
+Because MIN tries to minimize MAX's utility:
+
+```text
+A1 value = min(3, 12, 8) = 3
+A2 value = min(2, 4, 6) = 2
+A3 value = min(14, 5, 2) = 2
+```
+
+Now MAX chooses the maximum of these backed-up values:
+
+```text
+max(3, 2, 2) = 3
+```
+
+So MAX chooses A1.
+
+This is the minimax idea: choose the move with the best worst-case result.
+
+### Why Minimax Values Are Backed Up
+
+The values at the leaves are final outcomes. But the player at the root needs to choose now.
+
+To decide now, the algorithm works backward:
+
+1. Evaluate terminal states.
+2. At MIN nodes, take the minimum.
+3. At MAX nodes, take the maximum.
+4. Continue until the root has a value.
+
+This process is called **backing up values**.
+
+### Alpha-Beta Pruning Worked Example
+
+Use the same tree:
+
+```text
+A1 outcomes: 3, 12, 8
+A2 outcomes: 2, 4, 6
+A3 outcomes: 14, 5, 2
+```
+
+First, evaluate A1:
+
+```text
+min(3, 12, 8) = 3
+```
+
+MAX now knows it can get at least 3. This is alpha.
+
+Now examine A2. The first child has value 2.
+
+Since A2 is a MIN node, MIN can choose 2. That means A2 can never become better than 2 for MAX.
+
+MAX already has 3 from A1, so A2 cannot be chosen. The remaining children of A2 can be pruned.
+
+This saves work while giving the same final answer.
+
+### Why Pruning Does Not Change the Answer
+
+Alpha-beta pruning only skips branches that cannot affect the final minimax decision.
+
+It does not guess randomly.
+
+It uses logic:
+
+```text
+If this branch is already worse than another known choice,
+then no unseen part of this branch can make it useful.
+```
+
+Therefore, alpha-beta returns the same decision as minimax.
+
+### Evaluation Function Worked Example
+
+Suppose a simple chess evaluation function uses only material:
+
+```text
+pawn = 1
+knight = 3
+bishop = 3
+rook = 5
+queen = 9
+```
+
+If White has:
+
+```text
+1 queen, 2 rooks, 2 bishops, 2 knights, 6 pawns
+```
+
+White material score:
+
+```text
+9 + 10 + 6 + 6 + 6 = 37
+```
+
+If Black has:
+
+```text
+1 queen, 2 rooks, 1 bishop, 2 knights, 7 pawns
+```
+
+Black material score:
+
+```text
+9 + 10 + 3 + 6 + 7 = 35
+```
+
+White material advantage:
+
+```text
+37 - 35 = 2
+```
+
+This means White is ahead by about two pawns according to this simple evaluation.
+
+Real evaluation functions use many more features, such as king safety and board control.
+
+### Horizon Effect Example
+
+Suppose a chess program searches only 3 moves ahead.
+
+It sees that it can delay losing a rook until move 4.
+
+Since move 4 is beyond the search limit, the program may think the position is safe.
+
+This is the horizon effect: the program misses a serious problem just beyond its search depth.
+
+Quiescence search helps by continuing search in tactical positions until the situation becomes stable.
+
+### Chance Node Worked Example
+
+Suppose a game has a random event with three outcomes:
+
+```text
+Outcome A: probability 0.5, value 8
+Outcome B: probability 0.25, value 4
+Outcome C: probability 0.25, value -2
+```
+
+The expected value is:
+
+```text
+(0.5 * 8) + (0.25 * 4) + (0.25 * -2)
+= 4 + 1 - 0.5
+= 4.5
+```
+
+So the chance node has value 4.5.
+
+### Monte Carlo Simulation Example
+
+Suppose an AI is choosing between two moves in a game with dice.
+
+It runs 1000 random simulations for each move.
+
+```text
+Move A wins 580 times
+Move B wins 640 times
+```
+
+Estimated win rates:
+
+```text
+Move A = 58%
+Move B = 64%
+```
+
+The AI chooses Move B because it performs better in the simulations.
+
+Monte Carlo methods are useful when exact search is too expensive.
+
+### Partially Observable Game Example
+
+In poker, the AI does not know the opponent's cards.
+
+It may simulate many possible hidden card deals:
+
+```text
+Possible deal 1
+Possible deal 2
+Possible deal 3
+...
+```
+
+Then it estimates which action performs best on average.
+
+However, poker also includes bluffing and information gathering. A move may be useful not only because of its immediate payoff, but because it changes what the opponent believes.
+
+This makes partially observable games more difficult than fully observable games.
+
+## Quick Comparison of Chapters 1 to 7
 
 | Chapter | Main Idea | Example |
 |---|---|---|
@@ -1515,8 +2207,9 @@ In TSP, temporarily making the route longer may allow the algorithm to remove a 
 | Chapter 4 | Search strategies | BFS, DFS, UCS, A* |
 | Chapter 5 | Informed search and memory-bounded search | greedy search, IDA*, SMA* |
 | Chapter 6 | Local search and optimization | n-queens, traveling salesman |
+| Chapter 7 | Adversarial search and games | minimax, alpha-beta pruning, chess |
 
-## Key Terms From Chapters 1 to 6
+## Key Terms From Chapters 1 to 7
 
 - **Artificial Intelligence**: building systems that perform tasks requiring intelligence.
 - **Agent**: something that perceives and acts.
@@ -1546,11 +2239,28 @@ In TSP, temporarily making the route longer may allow the algorithm to remove a 
 - **Local optimum**: a state better than nearby states but not the best overall.
 - **Local beam search**: keeps several current states at once.
 - **Simulated annealing**: accepts some worse moves to escape local optima.
+- **Adversarial search**: search where another agent or player is working against the agent.
+- **Game tree**: a tree showing possible moves and responses in a game.
+- **MAX player**: the player trying to maximize utility.
+- **MIN player**: the player trying to minimize MAX's utility.
+- **Terminal state**: a final game state where the game is over.
+- **Utility**: a numerical value representing the outcome of a state.
+- **Zero-sum game**: a game where one player's gain is the other player's loss.
+- **Strategy**: a rule that tells a player what move to make in each possible state.
+- **Minimax**: a game-search algorithm that chooses the best move assuming the opponent plays optimally.
+- **Alpha-beta pruning**: a method for skipping game-tree branches that cannot affect the minimax decision.
+- **Evaluation function**: a function that estimates the value of a non-terminal game state.
+- **Horizon effect**: an error caused by missing an important event just beyond the search depth limit.
+- **Quiescence search**: extending search in unstable positions before applying an evaluation function.
+- **Chance node**: a game-tree node representing a random event.
+- **Expectiminimax**: minimax extended to handle chance nodes using expected values.
+- **Monte Carlo simulation**: estimating values by running many random simulations.
+- **Partially observable game**: a game where players cannot see the complete state.
 
 ## Overall Summary
 
-Chapters 1 to 6 build the foundation for understanding AI problem solving.
+Chapters 1 to 7 build the foundation for understanding AI problem solving.
 
-Chapter 1 introduces AI, rational agents, the Turing Test, AI foundations, and applications. Chapter 2 explains how AI systems can be modeled as agents that perceive and act. Chapter 3 shows how agents solve problems by searching through possible states. Chapter 4 compares major search strategies, including uninformed and informed search. Chapter 5 focuses more deeply on informed and memory-bounded search methods. Chapter 6 introduces local search methods for optimization problems where the goal is to find a good final solution rather than a full path.
+Chapter 1 introduces AI, rational agents, the Turing Test, AI foundations, and applications. Chapter 2 explains how AI systems can be modeled as agents that perceive and act. Chapter 3 shows how agents solve problems by searching through possible states. Chapter 4 compares major search strategies, including uninformed and informed search. Chapter 5 focuses more deeply on informed and memory-bounded search methods. Chapter 6 introduces local search methods for optimization problems where the goal is to find a good final solution rather than a full path. Chapter 7 extends search to competitive settings, where an AI must choose actions while considering an opponent's possible responses.
 
-The main theme is that AI is about choosing good actions under constraints. Sometimes the agent has complete information and can search systematically. Sometimes it needs heuristics to guide the search. Sometimes the state space is too large, so local search and approximation methods are more practical.
+The main theme is that AI is about choosing good actions under constraints. Sometimes the agent has complete information and can search systematically. Sometimes it needs heuristics to guide the search. Sometimes the state space is too large, so local search and approximation methods are more practical. In games, the agent must also reason about opponents, uncertainty, and limited time.
